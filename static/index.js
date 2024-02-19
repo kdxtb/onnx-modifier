@@ -574,7 +574,6 @@ host.BrowserHost = class {
 
     _convertModification2json()
     {
-        console.log(this._view.modifier.name2NodeStates);
         return JSON.stringify({
             'node_states' : this.mapToObjectRec(this._view.modifier.name2NodeStates),
             'node_renamed_io' : this.mapToObjectRec(this._view.modifier.renameMap),

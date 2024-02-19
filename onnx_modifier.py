@@ -168,6 +168,8 @@ class onnxModifier:
         for node_name in node_renamed_io.keys():
             if node_name not in self.node_name2module.keys():
                 # added inputs
+                if "out_" in node_name:
+                    continue
                 if node_renamed_io[node_name][node_name] in [name_shape[0] for name_shape in added_inputs.values()]:
                     for key,val in self.node_name2module.items():
                         if hasattr(val,'input'):
@@ -239,7 +241,6 @@ class onnxModifier:
 
     def modify_inputs(self, modefied_inputs):
         for name_shape in modefied_inputs.values():
-            # ['input.4', 'float32[1,8,96,96]']
             name = name_shape[0]
             dtype = name_shape[1].split("[")[0]
             onnx_dtype = str2onnxdtype(dtype)
