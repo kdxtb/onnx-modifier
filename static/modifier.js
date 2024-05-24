@@ -97,6 +97,9 @@ modifier.Modifier = class {
         properties.set('domain', op_domain);
         properties.set('op_type', op_type);
         properties.set('name', modelNodeName);
+        //new view.LightNodeInfo(properties) create a light node templete with no input/output/attributes Map info
+        //console.log(new view.LightNodeInfo(properties))
+        //add a target node according to the NodeName by onnx.Graph.make_custom_added_node(node_info) in refreshAddedNode() in applyAndUpdateView(), finally add to the addedNode Map
         this.addedNode.set(modelNodeName, new view.LightNodeInfo(properties));
 
         this.applyAndUpdateView();
@@ -275,7 +278,8 @@ modifier.Modifier = class {
 
     changeNodeInputOutput(modelNodeName, parameterName, param_type, param_index, arg_index, targetValue) {
         if (this.addedNode.has(modelNodeName)) {  // for custom added node
-            if (this.addedNode.get(modelNodeName).inputs.has(parameterName)) {
+            //there are some cases that input and output have the same parameterName, have to treat them independently
+            if (param_type == 'input' && this.addedNode.get(modelNodeName).inputs.has(parameterName)) {
                 var arg_name = this.addedNode.get(modelNodeName).inputs.get(parameterName)[arg_index][0];  // [arg.name, arg.is_optional]
                 // update the corresponding initializer name
                 if (this.initializerEditInfo.has(arg_name)) {
@@ -287,7 +291,7 @@ modifier.Modifier = class {
             }
             // console.log(this.initializerEditInfo)
 
-            if (this.addedNode.get(modelNodeName).outputs.has(parameterName)) {
+            else if (param_type == 'output' && this.addedNode.get(modelNodeName).outputs.has(parameterName)) {
                 this.addedNode.get(modelNodeName).outputs.get(parameterName)[arg_index][0] = targetValue;
             }
         }
@@ -461,7 +465,7 @@ modifier.Modifier = class {
         }
     }
 
-    // re-generate the added node according to addedNode according to the latest addedNode
+    // re-generate the added node according to the latest addedNode
     refreshAddedNode() {
         if(!this.graph)return;
         this.graph.reset_custom_added_node();
